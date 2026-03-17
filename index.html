@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>面試大冒險 - 15格版</title>
+    <style>
+        body { font-family: "Microsoft JhengHei", Arial, sans-serif; text-align: center; background-color: #eef2f3; margin: 0; padding: 10px; }
+        h1 { color: #2c3e50; font-size: 28px; margin-bottom: 5px; }
+        #board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 700px; margin: 15px auto; }
+        .cell { height: 100px; border: 3px solid #bdc3c7; background: white; border-radius: 12px; 
+                display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 14px; position: relative; font-weight: bold; }
+        .active { border-color: #f1c40f; background-color: #fff9c4; box-shadow: 0 0 15px #f1c40f; z-index: 10; }
+        .event-good { background-color: #e3f2fd; border-color: #2196f3; color: #0d47a1; }
+        .event-bad { background-color: #ffebee; border-color: #f44336; color: #b71c1c; }
+        #player { font-size: 45px; position: absolute; bottom: 5px; transition: all 0.3s; }
+        #dice-btn { padding: 15px 35px; font-size: 26px; cursor: pointer; background: #27ae60; color: white; border: none; border-radius: 40px; box-shadow: 0 4px #1e8449; margin-top: 10px; }
+        #dice-btn:disabled { background: #95a5a6; box-shadow: none; cursor: not-allowed; }
+        #msg { font-size: 22px; margin-top: 15px; min-height: 40px; color: #2c3e50; font-weight: bold; background: white; display: inline-block; padding: 10px 20px; border-radius: 10px; }
+        .icon { font-size: 32px; }
+    </style>
+</head>
+<body>
+
+    <h1>🚶 面試大冒險 (15格版) 🏢</h1>
+    <p>大家一起數：一、二、三！去面試囉！</p>
+
+    <div id="board">
+        <!-- 15格由 JavaScript 產生 -->
+    </div>
+
+    <button id="dice-btn" onclick="rollDice()">🎲 擲骰子</button>
+    <br>
+    <div id="msg">請點擊綠色按鈕開始遊戲</div>
+
+    <script>
+        const boardData = [
+            { label: "起點", icon: "🏠" },
+            { label: "帶齊證件", icon: "🪪", effect: 1, msg: "好棒！帶齊證件，行快 1 格！" },
+            { label: "路徑", icon: "👣" },
+            { label: "睇地圖", icon: "🗺️", effect: 1, msg: "識睇地圖，行快 1 格！" },
+            { label: "路徑", icon: "👣" },
+            { label: "塞車", icon: "🚗", effect: -1, msg: "前面塞車，要退後 1 格。" },
+            { label: "路徑", icon: "👣" },
+            { label: "早出發", icon: "☀️", effect: 2, msg: "提早出門，行快 2 格！" },
+            { label: "路徑", icon: "👣" },
+            { label: "路徑", icon: "👣" },
+            { label: "漏帶相片", icon: "📸", effect: -2, msg: "唔記得帶相！退後 2 格攞返。" },
+            { label: "路徑", icon: "👣" },
+            { label: "整理衣服", icon: "👔", effect: 1, msg: "整齊乾淨，行快 1 格！" },
+            { label: "路徑", icon: "👣" },
+            { label: "終點", icon: "🏢", isEnd: true }
+        ];
+
+        let currentPos = 0;
+        const boardEl = document.getElementById('board');
+        const msgEl = document.getElementById('msg');
+        const diceBtn = document.getElementById('dice-btn');
+
+        function initBoard() {
+            boardEl.innerHTML = '';
+            boardData.forEach((cell, index) => {
+                const div = document.createElement('div');
+                div.className = 'cell';
+                if (cell.effect > 0) div.classList.add('event-good');
+                if (cell.effect < 0) div.classList.add('event-bad');
+                
+                div.innerHTML = `<div class="icon">${cell.icon}</div><div>${cell.label}</div>`;
+                
+                if (index === currentPos) {
+                    div.classList.add('active');
+                    const player = document.createElement('div');
+                    player.id = 'player';
+                    player.innerText = '🙋‍♂️';
+                    div.appendChild(player);
+                }
+                boardEl.appendChild(div);
+            });
+        }
+
+        function rollDice() {
+            diceBtn.disabled = true;
+            const steps = Math.floor(Math.random() * 3) + 1; // 1-3格
+            msgEl.innerText = `擲到 ${steps} 點！行步走...`;
+            
+            let moveCount = 0;
+            const moveInterval = setInterval(() => {
+                if (moveCount < steps && currentPos < boardData.length - 1) {
+                    currentPos++;
+                    moveCount++;
+                    initBoard();
+                } else {
+                    clearInterval(moveInterval);
+                    checkEvent();
+                }
+            }, 600);
+        }
+
+        function checkEvent() {
+            const cell = boardData[currentPos];
+            if (cell.isEnd) {
+                msgEl.innerText = "🎉 恭喜！準時去到面試地方！";
+                diceBtn.style.display = 'none';
+                return;
+            }
+
+            if (cell.effect) {
+                setTimeout(() => {
+                    msgEl.innerText = cell.msg;
+                    currentPos += cell.effect;
+                    if (currentPos < 0) currentPos = 0;
+                    initBoard();
+                    diceBtn.disabled = false;
+                }, 1000);
+            } else {
+                msgEl.innerText = "加油！繼續前進！";
+                diceBtn.disabled = false;
+            }
+        }
+
+        initBoard();
+    </script>
+</body>
+</html>
