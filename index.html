@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>面試大挑戰 - 最終修正版</title>
+    <title>面試大挑戰 - 無限循環修正版</title>
     <style>
         body { 
             font-family: "Microsoft JhengHei", Arial, sans-serif; 
@@ -52,7 +52,7 @@
         <ul>
             <li>🚩 面試時間是 <span style="color:#e67e22; font-weight:bold;">10:00</span>。</li>
             <li>⌚ 最好在 <span style="color:#27ae60; font-weight:bold;">09:45 - 10:00</span> 之間到達。</li>
-            <li>🕒 <b>每行一格過 4 分鐘</b>。不要遲到，也不要太早到喔！</li>
+            <li>🕒 <b>每一格過 4 分鐘</b>。如果曾經退後，下次經過同一格會直接通過！</li>
         </ul>
     </div>
 
@@ -73,45 +73,39 @@
             { label: "", icon: "👣" },
             { label: "睇地圖", icon: "🗺️", effect: 1, msg: "識睇地圖，行快咗！" },
             { label: "", icon: "👣" },
-            { label: "塞車", icon: "🚗", effect: -1, msg: "塞車啦！慢咗一步。" },
+            { label: "塞車", icon: "🚗", effect: -1, msg: "塞車啦！慢咗一步。", isTrap: true },
             { label: "", icon: "👣" },
             { label: "早出發", icon: "☀️", effect: 2, msg: "提早出門，行快 2 格！" },
             { label: "", icon: "👣" },
             { label: "", icon: "👣" },
             { label: "", icon: "👣" },
-            { label: "漏帶相片", icon: "📸", effect: -3, msg: "唔記得帶相！要返屋企攞。(退後3格)", isTrap: true },
+            { label: "漏帶相片", icon: "📸", effect: -3, msg: "唔記得帶相！要返屋企攞。", isTrap: true },
             { label: "衣服整齊", icon: "👔", effect: 1, msg: "衣服整齊，面試加分！" },
             { label: "", icon: "👣" },
             { label: "", icon: "👣" },
-            { label: "紅燈", icon: "🚦", effect: -1, msg: "等紅燈，慢咗一步。" },
+            { label: "紅燈", icon: "🚦", effect: -1, msg: "等紅燈，慢咗一步。", isTrap: true },
             { label: "", icon: "👣" },
             { label: "查好路線", icon: "🚌", effect: 1, msg: "查好巴士路線，行得好順！" },
             { label: "", icon: "👣" },
             { label: "", icon: "👣" },
-            { label: "電話冇電", icon: "🪫", effect: -1, msg: "電話冇電，行慢咗。" },
+            { label: "電話冇電", icon: "🪫", effect: -1, msg: "電話冇電，行慢咗。", isTrap: true },
             { label: "", icon: "👣" },
             { label: "喝水放鬆", icon: "🥛", effect: 0, msg: "喝口水，深呼吸。" },
             { label: "", icon: "👣" },
             { label: "見到公司", icon: "🏙️", effect: 2, msg: "見到公司大樓啦！快步走！" },
             { label: "", icon: "👣" },
-            { label: "落大雨", icon: "🌧️", effect: -2, msg: "落大雨，要慢行。" },
+            { label: "落大雨", icon: "🌧️", effect: -2, msg: "落大雨，要慢行。", isTrap: true },
             { label: "", icon: "👣" },
             { label: "", icon: "👣" },
             { label: "終點", icon: "🏢", isEnd: true }
         ];
 
-        const sCurveIndex = [
-            0, 1, 2, 3, 4,
-            9, 8, 7, 6, 5,
-            10, 11, 12, 13, 14,
-            19, 18, 17, 16, 15,
-            20, 21, 22, 23, 24,
-            29, 28, 27, 26, 25
-        ];
-
+        const sCurveIndex =;
         let currentPos = 0;
         let currentTimeMinutes = 480; 
-        let hasEncounteredPhotoTrap = false; 
+        
+        // 使用 Set 來紀錄已經中過招的格子編號
+        let encounteredTraps = new Set(); 
 
         const boardEl = document.getElementById('board');
         const msgEl = document.getElementById('msg');
@@ -164,8 +158,9 @@
             const cell = rawData[currentPos];
             if (cell.isEnd) { judgeResult(); return; }
 
-            if (cell.isTrap && hasEncounteredPhotoTrap) {
-                msgEl.innerText = "好彩你已經攞返相片，繼續出發！";
+            // 全局保底邏輯：如果這個格子編號曾經讓玩家退後過，這次就直接跳過
+            if (cell.isTrap && encounteredTraps.has(currentPos)) {
+                msgEl.innerText = "上次已經解決咗問題，繼續行！";
                 diceBtn.disabled = false;
                 return;
             }
@@ -173,7 +168,10 @@
             if (cell.effect !== undefined && cell.effect !== 0) {
                 setTimeout(() => {
                     msgEl.innerText = cell.msg;
-                    if (cell.isTrap) hasEncounteredPhotoTrap = true; 
+                    // 如果是後退事件，將其加入「已中招」名單
+                    if (cell.effect < 0) {
+                        encounteredTraps.add(currentPos);
+                    }
                     currentPos += cell.effect;
                     if (currentPos < 0) currentPos = 0;
                     initBoard(); diceBtn.disabled = false;
@@ -186,9 +184,9 @@
             if (currentTimeMinutes >= 585 && currentTimeMinutes <= 600) {
                 msgEl.innerHTML = "<span style='color:#27ae60'>🌟 太棒了！你在黃金時間到達！你是最準時的！</span>";
             } else if (currentTimeMinutes < 585) {
-                msgEl.innerHTML = "<span style='color:#2980b9'>⚠️ 到達終點！但現在太早了，要在門口等很久喔。</span>";
+                msgEl.innerHTML = "<span style='color:#2980b9'>⚠️ 到達終點！但現在太早了，要在門口等很久。</span>";
             } else {
-                msgEl.innerHTML = "<span style='color:#e74c3c'>❌ 遲到了！已經超過 10:00，下次要預早一點。</span>";
+                msgEl.innerHTML = "<span style='color:#e74c3c'>❌ 遲到了！已經超過 10:00。</span>";
             }
         }
 
