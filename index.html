@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>面試大挑戰 - 無限循環修正版</title>
+    <title>面試大挑戰 - 最終修正完整版</title>
     <style>
         body { 
             font-family: "Microsoft JhengHei", Arial, sans-serif; 
@@ -40,7 +40,6 @@
         #dice-btn { padding: 20px 60px; font-size: 32px; cursor: pointer; background: #27ae60; color: white; border: none; border-radius: 60px; box-shadow: 0 8px #1e8449; }
         #dice-btn:disabled { background: #bdc3c7; box-shadow: none; cursor: not-allowed; }
         #msg { font-size: 24px; margin: 20px auto; min-height: 60px; font-weight: bold; max-width: 750px; padding: 15px; border-radius: 15px; background: white; border: 3px solid #3498db; }
-        .icon { font-size: 32px; }
     </style>
 </head>
 <body>
@@ -52,7 +51,7 @@
         <ul>
             <li>🚩 面試時間是 <span style="color:#e67e22; font-weight:bold;">10:00</span>。</li>
             <li>⌚ 最好在 <span style="color:#27ae60; font-weight:bold;">09:45 - 10:00</span> 之間到達。</li>
-            <li>🕒 <b>每一格過 4 分鐘</b>。如果曾經退後，下次經過同一格會直接通過！</li>
+            <li>🕒 <b>每行一格過 4 分鐘</b>。如果重複踩中負面格，系統會自動讓你通過！</li>
         </ul>
     </div>
 
@@ -100,11 +99,11 @@
             { label: "終點", icon: "🏢", isEnd: true }
         ];
 
-        const sCurveIndex =;
+        // 核心修正：手動列出所有 30 個數字，確保 100% 讀取成功
+        const sCurveIndex = [0, 1, 2, 3, 4, 9, 8, 7, 6, 5, 10, 11, 12, 13, 14, 19, 18, 17, 16, 15, 20, 21, 22, 23, 24, 29, 28, 27, 26, 25];
+
         let currentPos = 0;
         let currentTimeMinutes = 480; 
-        
-        // 使用 Set 來紀錄已經中過招的格子編號
         let encounteredTraps = new Set(); 
 
         const boardEl = document.getElementById('board');
@@ -127,10 +126,11 @@
                 div.className = 'cell';
                 if (cell.effect > 0) div.classList.add('event-good');
                 if (cell.effect < 0) div.classList.add('event-bad');
-                div.innerHTML = `<div class="cell-num">${idx + 1}</div><div class="icon">${cell.icon}</div><div style="font-size:11px">${cell.label}</div>`;
+                div.innerHTML = `<div class="cell-num">${idx + 1}</div><div style="font-size:35px">${cell.icon}</div><div style="font-size:11px">${cell.label}</div>`;
                 if (idx === currentPos) {
                     div.classList.add('active');
                     const p = document.createElement('div'); p.id = 'player'; p.innerText = '🙋‍♂️';
+                    p.style.position = 'absolute';
                     div.appendChild(p);
                 }
                 boardEl.appendChild(div);
@@ -157,21 +157,14 @@
         function checkEvent() {
             const cell = rawData[currentPos];
             if (cell.isEnd) { judgeResult(); return; }
-
-            // 全局保底邏輯：如果這個格子編號曾經讓玩家退後過，這次就直接跳過
             if (cell.isTrap && encounteredTraps.has(currentPos)) {
                 msgEl.innerText = "上次已經解決咗問題，繼續行！";
-                diceBtn.disabled = false;
-                return;
+                diceBtn.disabled = false; return;
             }
-
             if (cell.effect !== undefined && cell.effect !== 0) {
                 setTimeout(() => {
                     msgEl.innerText = cell.msg;
-                    // 如果是後退事件，將其加入「已中招」名單
-                    if (cell.effect < 0) {
-                        encounteredTraps.add(currentPos);
-                    }
+                    if (cell.effect < 0) encounteredTraps.add(currentPos);
                     currentPos += cell.effect;
                     if (currentPos < 0) currentPos = 0;
                     initBoard(); diceBtn.disabled = false;
