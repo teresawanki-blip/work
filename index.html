@@ -93,14 +93,14 @@
     <div id="msg">面試快要開始了，快出發吧！</div>
 
     <script>
-        // 設定 30 格內容
+       // 設定 30 格內容 (0-29)
         const rawData = [
             { label: "起點", icon: "🏠" },
-            { label: "帶齊證件", icon: "🪪", effect: 1, msg: "好棒！帶齊證件，快咗 1 格！" },
+            { label: "帶齊證件", icon: "🪪", effect: 1, msg: "好棒！帶齊證件，前進 1 格！" },
             { label: "", icon: "👣" },
-            { label: "睇地圖", icon: "🗺️", effect: 1, msg: "識睇地圖，快咗 1 格！" },
+            { label: "睇地圖", icon: "🗺️", effect: 1, msg: "識睇地圖，前進 1 格！" },
             { label: "", icon: "👣" },
-            { label: "塞車", icon: "🚗", effect: -1, msg: "塞車啦！慢咗 1 格。" },
+            { label: "塞車", icon: "🚗", effect: -1, msg: "塞車啦！退後 1 格。" },
             { label: "", icon: "👣" },
             { label: "早出發", icon: "☀️", effect: 2, msg: "提早出門，行快 2 格！" },
             { label: "", icon: "👣" },
@@ -110,28 +110,36 @@
             { label: "衣服整齊", icon: "👔", effect: 1, msg: "衣服整齊，面試加分！前進 1 格。" },
             { label: "", icon: "👣" },
             { label: "", icon: "👣" },
-            { label: "交通燈紅燈", icon: "🚦", effect: -1, msg: "等紅燈，慢咗 1 格。" },
+            { label: "紅燈", icon: "🚦", effect: -1, msg: "等紅燈，慢咗 1 格。" },
             { label: "", icon: "👣" },
             { label: "查好路線", icon: "🚌", effect: 1, msg: "查好巴士路線，快咗 1 格！" },
             { label: "", icon: "👣" },
             { label: "", icon: "👣" },
-            { label: "電話冇電", icon: "🪫", effect: -1, msg: "電話冇電睇唔到地圖，慢咗 1 格。" },
+            { label: "電話冇電", icon: "🪫", effect: -1, msg: "電話冇電，退後 1 格。" },
             { label: "", icon: "👣" },
             { label: "飲啖水", icon: "🥛", effect: 0, msg: "飲啖水，放鬆心情。" },
             { label: "", icon: "👣" },
             { label: "見到公司", icon: "🏙️", effect: 2, msg: "見到公司大樓啦！衝刺 2 格！" },
             { label: "", icon: "👣" },
-            { label: "落大雨", icon: "🌧️", effect: -2, msg: "落大雨要避雨，慢咗 2 格。" },
+            { label: "落大雨", icon: "🌧️", effect: -2, msg: "落大雨，慢咗 2 格。" },
             { label: "", icon: "👣" },
             { label: "", icon: "👣" },
             { label: "終點", icon: "🏢", isEnd: true }
         ];
 
-        // 30 格 S 型排列 (6行 x 5列)
-        const sCurveIndex =;
+        // 核心修正：手動定義 6x5 的 S 型顯示順序
+        // 每行 5 格，單數行向右，雙數行向左
+        const sCurveIndex = [
+            0, 1, 2, 3, 4,       // 第一行 (右)
+            9, 8, 7, 6, 5,       // 第二行 (左)
+            10, 11, 12, 13, 14,  // 第三行 (右)
+            19, 18, 17, 16, 15,  // 第四行 (左)
+            20, 21, 22, 23, 24,  // 第五行 (右)
+            29, 28, 27, 26, 25   // 第六行 (左)
+        ];
 
         let currentPos = 0;
-        let totalMinutes = 75; // 1小時15分鐘
+        let totalMinutes = 75; 
         const boardEl = document.getElementById('board');
         const msgEl = document.getElementById('msg');
         const timerEl = document.getElementById('timer');
@@ -143,7 +151,6 @@
             timerEl.innerText = `剩餘時間：${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
             if (totalMinutes <= 0) {
                 timerEl.style.color = "#e74c3c";
-                gameOver("遲到了！面試已經結束了。下次要快點喔！");
             }
         }
 
@@ -176,14 +183,14 @@
         function rollDice() {
             diceBtn.disabled = true;
             const steps = Math.floor(Math.random() * 3) + 1; 
-            msgEl.innerText = `🎲 擲到 ${steps} 點！準備行...`;
+            msgEl.innerText = `🎲 擲到 ${steps} 點！`;
             
             let moveCount = 0;
             const moveInterval = setInterval(() => {
                 if (moveCount < steps && currentPos < rawData.length - 1 && totalMinutes > 0) {
                     currentPos++;
                     moveCount++;
-                    totalMinutes -= 5; // 每走一格扣5分鐘
+                    totalMinutes -= 5; 
                     updateTimerDisplay();
                     initBoard();
                     
@@ -201,7 +208,7 @@
         function checkEvent() {
             const cell = rawData[currentPos];
             if (cell.isEnd) {
-                msgEl.innerHTML = "<span style='color:#27ae60'>🎉 太棒了！你在限時內準時到達！面試成功！</span>";
+                msgEl.innerHTML = "<span style='color:#27ae60'>🎉 太棒了！準時到達！</span>";
                 diceBtn.style.display = 'none';
                 return;
             }
@@ -209,14 +216,12 @@
             if (cell.effect) {
                 setTimeout(() => {
                     msgEl.innerText = cell.msg;
-                    // 因事件移動不額外扣時間，或按需求修改
                     currentPos += cell.effect;
                     if (currentPos < 0) currentPos = 0;
                     initBoard();
                     diceBtn.disabled = false;
                 }, 1000);
             } else {
-                msgEl.innerText = "繼續努力，就快到公司啦！";
                 diceBtn.disabled = false;
             }
         }
@@ -224,11 +229,11 @@
         function gameOver(message) {
             msgEl.innerHTML = `<span style='color:#e74c3c'>❌ ${message}</span>`;
             diceBtn.disabled = true;
-            diceBtn.innerText = "遊戲結束";
         }
 
         updateTimerDisplay();
         initBoard();
+
     </script>
 </body>
 </html>
