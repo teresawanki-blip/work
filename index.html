@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>面試大挑戰 - 2小時充裕版</title>
+    <title>面試挑戰 - 準時黃金時間</title>
     <style>
         body { 
             font-family: "Microsoft JhengHei", Arial, sans-serif; 
@@ -14,146 +14,128 @@
         }
 
         #how-to-play {
-            background: rgba(255, 255, 255, 0.9); border: 2px solid #2ecc71;
-            border-radius: 15px; padding: 15px; max-width: 800px; margin: 10px auto;
+            background: rgba(255, 255, 255, 0.9); border: 2px solid #3498db;
+            border-radius: 15px; padding: 15px; max-width: 850px; margin: 10px auto;
             text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        #how-to-play h3 { margin-top: 0; color: #27ae60; }
+        #how-to-play h3 { margin-top: 0; color: #2980b9; }
         #how-to-play ul { margin: 5px 0; padding-left: 20px; font-size: 18px; line-height: 1.6; }
+        .highlight { color: #e67e22; font-weight: bold; }
 
-        #dashboard { display: flex; justify-content: center; align-items: center; gap: 30px; margin: 20px auto; }
-        #timer {
-            font-size: 32px; background: #2c3e50; color: #f1c40f;
-            padding: 15px 30px; border-radius: 50px; border: 4px solid #f1c40f;
+        #dashboard { display: flex; justify-content: center; align-items: center; gap: 30px; margin: 15px auto; }
+        #target-time { font-size: 24px; background: #ecf0f1; padding: 10px 20px; border-radius: 10px; border: 2px solid #bdc3c7; }
+        #current-time {
+            font-size: 36px; background: #2c3e50; color: #f1c40f;
+            padding: 15px 40px; border-radius: 50px; border: 4px solid #f1c40f;
             font-family: 'Courier New', Courier, monospace; font-weight: bold;
         }
 
         #board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 850px; margin: 0 auto 20px; }
         .cell { 
-            height: 90px; border: 3px solid #bdc3c7; background: rgba(255, 255, 255, 0.95); 
+            height: 85px; border: 3px solid #bdc3c7; background: rgba(255, 255, 255, 0.95); 
             border-radius: 12px; display: flex; flex-direction: column; align-items: center; 
             justify-content: center; position: relative; transition: 0.3s;
         }
-        .cell-num { position: absolute; top: 3px; left: 5px; font-size: 14px; color: #7f8c8d; }
+        .cell-num { position: absolute; top: 3px; left: 5px; font-size: 13px; color: #7f8c8d; }
         .active { border-color: #f1c40f; background-color: #fff9c4; box-shadow: 0 0 20px #f1c40f; transform: scale(1.05); z-index: 5; }
         .event-good { border-color: #3498db; background-color: #e1f5fe; }
         .event-bad { border-color: #e74c3c; background-color: #ffebee; }
         
         #player { font-size: 45px; filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3)); }
-        
-        #dice-btn { 
-            padding: 20px 60px; font-size: 32px; cursor: pointer; 
-            background: #27ae60; color: white; border: none; border-radius: 60px; 
-            box-shadow: 0 8px #1e8449;
-        }
+        #dice-btn { padding: 20px 60px; font-size: 32px; cursor: pointer; background: #27ae60; color: white; border: none; border-radius: 60px; box-shadow: 0 8px #1e8449; }
         #dice-btn:disabled { background: #bdc3c7; box-shadow: none; cursor: not-allowed; }
 
-        #msg { 
-            font-size: 24px; margin: 20px auto; min-height: 50px; font-weight: bold;
-            max-width: 700px; padding: 15px; border-radius: 15px; background: white;
-            border: 3px solid #3498db;
-        }
-        .icon { font-size: 35px; }
+        #msg { font-size: 24px; margin: 20px auto; min-height: 60px; font-weight: bold; max-width: 750px; padding: 15px; border-radius: 15px; background: white; border: 3px solid #3498db; }
+        .icon { font-size: 32px; }
     </style>
 </head>
 <body>
 
-    <h1>🏙️ 面試大挑戰：準時到達公司！ 🏢</h1>
+    <h1>🏙️ 面試大挑戰：尋找「黃金時間」 🏢</h1>
 
     <div id="how-to-play">
-        <h3>💡 遊戲玩法：</h3>
+        <h3>💡 遊戲目標：</h3>
         <ul>
-            <li>🎯 點擊<b>「🎲 擲骰子」</b>前進。</li>
-            <li>⏳ 每走一格，時間會扣除 <b>5 分鐘</b>。</li>
-            <li>🏢 在時間變為 <b>00:00</b> 前到達終點。</li>
-            <li>⚠️ 記得帶齊法寶，不要遲到喔！</li>
+            <li>🚩 面試時間是 <span class="highlight">10:00</span>。</li>
+            <li>⌚ 最理想是在 <span class="highlight">09:45 - 10:00</span> 之間到達終點。</li>
+            <li>🕒 <b>太早到 (09:45前)</b>：要在門口等好久。</li>
+            <li>❌ <b>太遲到 (10:00後)</b>：面試就失敗了！</li>
         </ul>
     </div>
 
     <div id="dashboard">
-        <div id="timer">剩餘時間：02:00</div>
+        <div id="target-time">🎯 面試時間：10:00</div>
+        <div id="current-time">現在時間：08:00</div>
     </div>
 
-    <div id="game-container">
-        <div id="board"></div>
-    </div>
+    <div id="board"></div>
 
     <button id="dice-btn" onclick="rollDice()">🎲 擲骰子</button>
-    <div id="msg">面試挑戰開始！你有充足的時間，出發吧！</div>
+    <div id="msg">現在是 08:00，出發去面試囉！</div>
 
     <script>
         const rawData = [
             { label: "起點", icon: "🏠" },
-            { label: "帶齊證件", icon: "🪪", effect: 1, msg: "好棒！帶齊證件，前進 1 格！" },
+            { label: "帶齊證件", icon: "🪪", effect: 1, msg: "好棒！帶齊證件，行快咗！" },
             { label: "", icon: "👣" },
-            { label: "睇地圖", icon: "🗺️", effect: 1, msg: "識睇地圖，前進 1 格！" },
+            { label: "睇地圖", icon: "🗺️", effect: 1, msg: "識睇地圖，行快咗！" },
             { label: "", icon: "👣" },
-            { label: "塞車", icon: "🚗", effect: -1, msg: "塞車啦！退後 1 格。" },
+            { label: "塞車", icon: "🚗", effect: -1, msg: "塞車啦！慢咗一步。" },
             { label: "", icon: "👣" },
             { label: "早出發", icon: "☀️", effect: 2, msg: "提早出門，行快 2 格！" },
             { label: "", icon: "👣" },
             { label: "", icon: "👣" },
             { label: "漏帶相片", icon: "📸", effect: -2, msg: "唔記得帶相！要返屋企攞。" },
             { label: "", icon: "👣" },
-            { label: "衣服整齊", icon: "👔", effect: 1, msg: "衣服整齊，面試加分！前進 1 格。" },
+            { label: "衣服整齊", icon: "👔", effect: 1, msg: "衣服整齊，面試加分！" },
             { label: "", icon: "👣" },
             { label: "", icon: "👣" },
-            { label: "紅燈", icon: "🚦", effect: -1, msg: "等紅燈，慢咗 1 格。" },
+            { label: "紅燈", icon: "🚦", effect: -1, msg: "等紅燈，慢咗一步。" },
             { label: "", icon: "👣" },
-            { label: "查好路線", icon: "🚌", effect: 1, msg: "查好巴士路線，快咗 1 格！" },
+            { label: "查好路線", icon: "🚌", effect: 1, msg: "查好巴士路線，行得好順！" },
             { label: "", icon: "👣" },
             { label: "", icon: "👣" },
-            { label: "電話冇電", icon: "🪫", effect: -1, msg: "電話冇電，退後 1 格。" },
+            { label: "電話冇電", icon: "🪫", effect: -1, msg: "電話冇電，行慢咗。" },
             { label: "", icon: "👣" },
-            { label: "飲啖水", icon: "🥛", effect: 0, msg: "飲啖水，放鬆心情。" },
+            { label: "喝水放鬆", icon: "🥛", effect: 0, msg: "喝口水，深呼吸。" },
             { label: "", icon: "👣" },
-            { label: "見到公司", icon: "🏙️", effect: 2, msg: "見到公司大樓啦！衝刺 2 格！" },
+            { label: "見到公司", icon: "🏙️", effect: 2, msg: "見到公司大樓啦！快步走！" },
             { label: "", icon: "👣" },
-            { label: "落大雨", icon: "🌧️", effect: -2, msg: "落大雨，慢咗 2 格。" },
+            { label: "落大雨", icon: "🌧️", effect: -2, msg: "落大雨，要慢行。" },
             { label: "", icon: "👣" },
             { label: "", icon: "👣" },
             { label: "終點", icon: "🏢", isEnd: true }
         ];
 
-        const sCurveIndex = [
-            0, 1, 2, 3, 4,
-            9, 8, 7, 6, 5,
-            10, 11, 12, 13, 14,
-            19, 18, 17, 16, 15,
-            20, 21, 22, 23, 24,
-            29, 28, 27, 26, 25
-        ];
+        const sCurveIndex = [0, 1, 2, 3, 4, 9, 8, 7, 6, 5, 10, 11, 12, 13, 14, 19, 18, 17, 16, 15, 20, 21, 22, 23, 24, 29, 28, 27, 26, 25];
 
         let currentPos = 0;
-        let totalMinutes = 120; // 改為 120 分鐘 (2 小時)
+        let currentTimeMinutes = 480; // 08:00 (8*60)
         const boardEl = document.getElementById('board');
         const msgEl = document.getElementById('msg');
-        const timerEl = document.getElementById('timer');
+        const timerEl = document.getElementById('current-time');
         const diceBtn = document.getElementById('dice-btn');
 
-        function updateTimerDisplay() {
-            const h = Math.floor(totalMinutes / 60);
-            const m = totalMinutes % 60;
-            timerEl.innerText = `剩餘時間：${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-            if (totalMinutes <= 0) {
-                timerEl.style.color = "#e74c3c";
-            }
+        function updateTimeDisplay() {
+            const h = Math.floor(currentTimeMinutes / 60);
+            const m = currentTimeMinutes % 60;
+            timerEl.innerText = `現在時間：${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+            if (currentTimeMinutes > 600) timerEl.style.color = "#e74c3c"; // 過了 10:00
         }
 
         function initBoard() {
             boardEl.innerHTML = '';
-            sCurveIndex.forEach((dataIndex) => {
-                const cell = rawData[dataIndex];
+            sCurveIndex.forEach((idx) => {
+                const cell = rawData[idx];
                 const div = document.createElement('div');
                 div.className = 'cell';
                 if (cell.effect > 0) div.classList.add('event-good');
                 if (cell.effect < 0) div.classList.add('event-bad');
-                div.innerHTML = `<div class="cell-num">${dataIndex + 1}</div><div class="icon">${cell.icon}</div><div style="font-size:12px">${cell.label}</div>`;
-                if (dataIndex === currentPos) {
+                div.innerHTML = `<div class="cell-num">${idx + 1}</div><div class="icon">${cell.icon}</div><div style="font-size:11px">${cell.label}</div>`;
+                if (idx === currentPos) {
                     div.classList.add('active');
-                    const player = document.createElement('div');
-                    player.id = 'player'; player.innerText = '🙋‍♂️';
-                    div.appendChild(player);
+                    const p = document.createElement('div'); p.id = 'player'; p.innerText = '🙋‍♂️';
+                    div.appendChild(p);
                 }
                 boardEl.appendChild(div);
             });
@@ -162,17 +144,16 @@
         function rollDice() {
             diceBtn.disabled = true;
             const steps = Math.floor(Math.random() * 3) + 1; 
-            msgEl.innerText = `🎲 擲到 ${steps} 點！`;
+            msgEl.innerText = `🎲 擲到 ${steps} 點！預備...走！`;
             let moveCount = 0;
             const moveInterval = setInterval(() => {
-                if (moveCount < steps && currentPos < rawData.length - 1 && totalMinutes > 0) {
+                if (moveCount < steps && currentPos < rawData.length - 1) {
                     currentPos++; moveCount++;
-                    totalMinutes -= 5;
-                    updateTimerDisplay(); initBoard();
-                    if (totalMinutes <= 0) { clearInterval(moveInterval); gameOver("遲到啦！下次要早點出發。"); }
+                    currentTimeMinutes += 4; // 每走一格過 4 分鐘
+                    updateTimeDisplay(); initBoard();
                 } else {
                     clearInterval(moveInterval);
-                    if (totalMinutes > 0) checkEvent();
+                    checkEvent();
                 }
             }, 600);
         }
@@ -180,8 +161,8 @@
         function checkEvent() {
             const cell = rawData[currentPos];
             if (cell.isEnd) {
-                msgEl.innerHTML = "<span style='color:#27ae60'>🎉 太棒了！你準時到達面試！</span>";
-                diceBtn.style.display = 'none'; return;
+                judgeResult();
+                return;
             }
             if (cell.effect) {
                 setTimeout(() => {
@@ -193,12 +174,19 @@
             } else { diceBtn.disabled = false; }
         }
 
-        function gameOver(message) {
-            msgEl.innerHTML = `<span style='color:#e74c3c'>❌ ${message}</span>`;
-            diceBtn.disabled = true;
+        function judgeResult() {
+            diceBtn.style.display = 'none';
+            // 09:45 = 585分, 10:00 = 600分
+            if (currentTimeMinutes >= 585 && currentTimeMinutes <= 600) {
+                msgEl.innerHTML = "<span style='color:#27ae60'>🌟 太棒了！你在「黃金時間」到達！你是最準時的求職者！</span>";
+            } else if (currentTimeMinutes < 585) {
+                msgEl.innerHTML = "<span style='color:#2980b9'>⚠️ 到達終點！但現在才 " + timerEl.innerText.split('：')[1] + "，太早到了，要在門口等很久喔。</span>";
+            } else {
+                msgEl.innerHTML = "<span style='color:#e74c3c'>❌ 遲到了！現在已經超過 10:00，下次要預早一點出發。</span>";
+            }
         }
 
-        updateTimerDisplay();
+        updateTimeDisplay();
         initBoard();
     </script>
 </body>
